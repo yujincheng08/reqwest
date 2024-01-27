@@ -86,6 +86,7 @@ impl Connector {
         proxies: Arc<Vec<Proxy>>,
         user_agent: Option<HeaderValue>,
         local_addr: T,
+        interface: Option<&str>,
         nodelay: bool,
         tls_info: bool,
     ) -> crate::Result<Connector>
@@ -94,7 +95,7 @@ impl Connector {
     {
         let tls = tls.build().map_err(crate::error::builder)?;
         Ok(Self::from_built_default_tls(
-            http, tls, proxies, user_agent, local_addr, nodelay, tls_info,
+            http, tls, proxies, user_agent, local_addr, interface, nodelay, tls_info,
         ))
     }
 
@@ -105,6 +106,7 @@ impl Connector {
         proxies: Arc<Vec<Proxy>>,
         user_agent: Option<HeaderValue>,
         local_addr: T,
+        interface: Option<&str>,
         nodelay: bool,
         tls_info: bool,
     ) -> Connector
@@ -112,6 +114,10 @@ impl Connector {
         T: Into<Option<IpAddr>>,
     {
         http.set_local_address(local_addr.into());
+        #[cfg(any(target_os = "android", target_os = "fuchsia", target_os = "linux"))]
+        if let Some(interface) = interface {
+            http.set_interface(interface);
+        }
         http.set_nodelay(nodelay);
         http.enforce_http(false);
 
@@ -133,6 +139,7 @@ impl Connector {
         proxies: Arc<Vec<Proxy>>,
         user_agent: Option<HeaderValue>,
         local_addr: T,
+        interface: Option<&str>,
         nodelay: bool,
         tls_info: bool,
     ) -> Connector
@@ -140,6 +147,10 @@ impl Connector {
         T: Into<Option<IpAddr>>,
     {
         http.set_local_address(local_addr.into());
+        #[cfg(any(target_os = "android", target_os = "fuchsia", target_os = "linux"))]
+        if let Some(interface) = interface {
+            http.set_interface(interface.to_owned());
+        }
         http.set_nodelay(nodelay);
         http.enforce_http(false);
 

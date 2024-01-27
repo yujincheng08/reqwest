@@ -513,6 +513,10 @@ impl ClientBuilder {
         self.with_inner(move |inner| inner.local_address(addr))
     }
 
+    pub fn device(self, device: &str) -> ClientBuilder {
+        self.with_inner(move |inner| inner.device(device))
+    }
+
     /// Set that all sockets have `SO_KEEPALIVE` set with the supplied duration.
     ///
     /// If `None`, the option will not be set.
